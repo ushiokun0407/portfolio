@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USHIO FUJIMOTO - FILM PORTFOLIO</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Noto Sans JP & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            muji: {
+              red: '#7F0019',
+              redhover: '#660014',
+              bg: '#F7F5F0',
+              card: '#FFFFFF',
+              text: '#111111',
+              sub: '#666666',
+              border: '#E5E0D8'
+            }
+          },
+          fontFamily: {
+            sans: ['"Hiragino Kaku Gothic ProN"', '"ヒラギノ角ゴ ProN W6"', '"Noto Sans JP"', '"Yu Gothic"', 'Meiryo', 'sans-serif'],
+            en: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F7F5F0;
+      color: #111111;
+      font-family: "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W6", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+      overflow-x: hidden;
+    }
+    
+    /* Smooth transition for Welcome Curtain */
+    #welcome-overlay {
+      transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    #welcome-overlay.dismissed {
+      transform: translateY(-100%);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F5F0;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #7F0019;
+    }
+
+    /* Infinite Marquee Animation */
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-marquee {
+      display: flex;
+      width: 200%;
+      animation: marquee 25s linear infinite;
+    }
+    .animate-marquee:hover {
+      animation-play-state: paused;
+    }
+
+    /* Shorts Snap Scroll */
+    .shorts-container {
+      scroll-snap-type: y mandatory;
+    }
+    .shorts-item {
+      scroll-snap-align: start;
+    }
+  </style>
+</head>
+<body class="antialiased text-muji-text selection:bg-muji-red selection:text-white">
+
+  <!-- ========================================== -->
+  <!-- 1. FULLSCREEN WELCOME OVERLAY              -->
+  <!-- ========================================== -->
+  <div id="welcome-overlay" class="fixed inset-0 z-50 bg-muji-red text-white flex flex-col justify-between p-6 md:p-12 cursor-pointer select-none">
+    <!-- Top Bar -->
+    <div class="flex justify-between items-center text-xs tracking-widest opacity-80 uppercase font-en font-semibold">
+      <span>HIGH SCHOOL 3-YEAR ARCHIVE</span>
+      <span>100 FILM PROJECT</span>
+    </div>
+
+    <!-- Center Hero Typography -->
+    <div class="my-auto text-center space-y-6">
+      <div class="inline-block px-4 py-1 border border-white/30 text-xs tracking-widest font-en uppercase mb-2">
+        PORTFOLIO INTRO
+      </div>
+      <h1 class="text-5xl md:text-8xl lg:text-9xl font-black tracking-tight leading-none font-sans">
+        藤本 潮
+      </h1>
+      <p class="text-sm md:text-xl font-bold tracking-widest text-white/90 max-w-xl mx-auto font-sans leading-relaxed">
+        高校3年間で100本の動画を創る。<br class="hidden sm:inline">日常と非日常の境界線を記録する映像作品集。
+      </p>
+    </div>
+
+    <!-- Bottom Scroll Indicator -->
+    <div class="flex flex-col items-center justify-center space-y-3 animate-bounce">
+      <span class="text-xs font-en tracking-widest font-bold uppercase opacity-90">SCROLL OR CLICK TO ENTER</span>
+      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 2. MAIN HEADER & PROGRESS BAR              -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-40 bg-muji-bg/95 backdrop-blur-md border-b border-muji-border">
+    <!-- Reading Progress Bar -->
+    <div id="scroll-progress" class="h-1 bg-muji-red w-0 transition-all duration-150"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Title / Brand -->
+      <div class="flex items-center space-x-3">
+        <button onclick="reopenWelcome()" class="text-xs px-2.5 py-1 bg-muji-red text-white font-bold font-en uppercase hover:bg-muji-redhover transition">
+          WELCOME
+        </button>
+        <span class="text-xl md:text-2xl font-black tracking-tight font-sans">藤本 潮</span>
+        <span class="hidden md:inline-block text-xs font-en text-muji-sub font-bold border-l border-muji-border pl-3">
+          100 FILMS ARCHIVE
+        </span>
+      </div>
+
+      <!-- Action Buttons & Admin Toggle -->
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <!-- Shorts Mode Launch Button -->
+        <button onclick="openShortsModal()" class="flex items-center space-x-1.5 text-xs font-extrabold px-3 py-2 bg-muji-red text-white hover:bg-muji-redhover transition rounded-none">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.77 10.32l-1.2-.5L18 9.06c1.84-.96 2.53-3.23 1.56-5.06s-3.24-2.53-5.07-1.56L6 6.94c-1.29.68-2.07 2.04-2 3.49.07 1.42.93 2.67 2.22 3.25l1.2.5L6 14.94c-1.84.96-2.53 3.23-1.56 5.06s3.24 2.53 5.07 1.56l8.43-4.44c1.29-.68 2.07-2.04 2-3.49-.07-1.42-.93-2.67-2.22-3.25zM10 14.65V9.35L15 12l-5 2.65z"/>
+          </svg>
+          <span>ショート再生</span>
+        </button>
+
+        <!-- Admin Control Trigger -->
+        <div id="admin-controls" class="hidden flex items-center space-x-2">
+          <button onclick="openAddModal()" class="text-xs font-extrabold px-3 py-2 bg-muji-text text-white hover:opacity-90 transition">
+            ＋ 動画を追加
+          </button>
+          <button onclick="openSettingsModal()" class="text-xs font-extrabold px-3 py-2 border border-muji-text hover:bg-muji-text hover:text-white transition">
+            サイト設定
+          </button>
+        </div>
+
+        <button id="admin-toggle-btn" onclick="toggleAdminPrompt()" class="p-2 border border-muji-border text-muji-sub hover:text-muji-red transition" title="編集モード切り替え">
+          <svg id="lock-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Infinite Marquee Header Banner -->
+  <div class="bg-muji-red text-white py-2 overflow-hidden text-xs font-black font-en tracking-widest uppercase">
+    <div class="animate-marquee whitespace-nowrap">
+      <span class="mx-6">★ USHIO FUJIMOTO FILM PORTFOLIO</span>
+      <span class="mx-6">・ 100 WORKS PROJECT IN HIGH SCHOOL</span>
+      <span class="mx-6">・ 2025 - 2027</span>
+      <span class="mx-6">・ CONCEPT: MINIMAL & SINCERE</span>
+      <span class="mx-6">★ USHIO FUJIMOTO FILM PORTFOLIO</span>
+      <span class="mx-6">・ 100 WORKS PROJECT IN HIGH SCHOOL</span>
+      <span class="mx-6">・ 2025 - 2027</span>
+      <span class="mx-6">・ CONCEPT: MINIMAL & SINCERE</span>
+    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+
+    <!-- ========================================== -->
+    <!-- 3. HERO & GOAL COUNTER SECTION             -->
+    <!-- ========================================== -->
+    <section class="border-b border-muji-border pb-12 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="space-y-3 max-w-2xl">
+          <div class="inline-flex items-center space-x-2 text-xs font-black tracking-widest text-muji-red font-en uppercase">
+            <span class="w-2 h-2 bg-muji-red inline-block"></span>
+            <span>CREATIVE DIRECTOR / EDITOR</span>
+          </div>
+          <h2 id="hero-tagline" class="text-3xl md:text-5xl font-extrabold tracking-tight font-sans leading-tight">
+            高校生3年間で制作する<br>100本の映像作品アーカイブ。
+          </h2>
+          <p id="hero-concept" class="text-muji-sub font-bold text-sm md:text-base leading-relaxed">
+            「日常の一瞬を、表現へ。」視点と構成力で切り取る映像制作プロジェクト。
+          </p>
+        </div>
+
+        <!-- 100 Counter Widget -->
+        <div class="bg-white p-6 border border-muji-border shadow-sm min-w-[280px] space-y-3">
+          <div class="flex justify-between items-baseline font-en">
+            <span class="text-xs font-black tracking-wider text-muji-sub uppercase">GRADUATION GOAL</span>
+            <span id="counter-text" class="text-2xl font-black text-muji-red">0 / 100</span>
+          </div>
+          <div class="w-full bg-muji-bg h-3 overflow-hidden border border-muji-border">
+            <div id="counter-progress-bar" class="bg-muji-red h-full w-0 transition-all duration-500"></div>
+          </div>
+          <p class="text-[11px] text-muji-sub font-bold text-right font-sans">
+            目標達成まで あと <span id="counter-remaining" class="font-extrabold text-muji-text">100</span> 本
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. TOP PROMINENT PROFILE SECTION           -->
+    <!-- ========================================== -->
+    <section class="bg-white border border-muji-border p-8 md:p-10 shadow-sm relative">
+      <div class="flex flex-col md:flex-row gap-8 items-start justify-between">
+        <div class="space-y-4 max-w-3xl">
+          <div class="flex items-center space-x-3">
+            <span class="px-2.5 py-1 bg-muji-red text-white text-xs font-black tracking-widest font-en uppercase">
+              PRODUCER PROFILE
+            </span>
+            <span id="profile-role" class="text-xs font-bold text-muji-sub font-sans">映像制作 / 監督 / SYIO</span>
+          </div>
+          <h3 id="profile-name" class="text-2xl md:text-4xl font-extrabold tracking-tight font-sans">
+            藤本 潮 <span class="text-sm font-bold text-muji-sub font-en block sm:inline sm:ml-2">(Ushio Fujimoto)</span>
+          </h3>
+          <p id="profile-text" class="text-sm md:text-base font-extrabold leading-relaxed text-muji-text/90 font-sans whitespace-pre-line">
+            高校での3年間を通じて合計100本の動画作品を制作・記録するプロジェクトを行っています。
+            実写ショートフィルム、プロモーションビデオ、モーショングラフィックスまで幅広く手掛け、洗練された構図と編集テンポ、質感にこだわった表現を追及しています。
+          </p>
+          <div class="flex flex-wrap gap-2 pt-2">
+            <span class="px-3 py-1 bg-muji-bg text-xs font-bold border border-muji-border">動画制作</span>
+            <span class="px-3 py-1 bg-muji-bg text-xs font-bold border border-muji-border">ディレクション</span>
+            <span class="px-3 py-1 bg-muji-bg text-xs font-bold border border-muji-border">DaVinci Resolve / Premiere Pro</span>
+            <span class="px-3 py-1 bg-muji-bg text-xs font-bold border border-muji-border">埼玉ユースイノベーション機構 (SYIO)</span>
+          </div>
+        </div>
+
+        <div id="admin-profile-btn" class="hidden">
+          <button onclick="openSettingsModal()" class="px-4 py-2 border border-muji-red text-muji-red font-extrabold text-xs hover:bg-muji-red hover:text-white transition">
+            ✏️ プロフィールを編集
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 5. YEAR FILTER TABS & SEARCH               -->
+    <!-- ========================================== -->
+    <section class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-muji-border pb-4">
+        <!-- Year Filters -->
+        <div class="flex flex-wrap gap-2 font-en" id="filter-container">
+          <button onclick="setYearFilter('all')" data-year="all" class="filter-btn px-5 py-2.5 font-extrabold text-xs uppercase tracking-wider bg-muji-red text-white border border-muji-red transition">
+            ALL / すべて
+          </button>
+          <button onclick="setYearFilter('2025')" data-year="2025" class="filter-btn px-5 py-2.5 font-extrabold text-xs uppercase tracking-wider bg-white text-muji-text border border-muji-border hover:border-muji-red transition">
+            2025 (高1)
+          </button>
+          <button onclick="setYearFilter('2026')" data-year="2026" class="filter-btn px-5 py-2.5 font-extrabold text-xs uppercase tracking-wider bg-white text-muji-text border border-muji-border hover:border-muji-red transition">
+            2026 (高2)
+          </button>
+          <button onclick="setYearFilter('2027')" data-year="2027" class="filter-btn px-5 py-2.5 font-extrabold text-xs uppercase tracking-wider bg-white text-muji-text border border-muji-border hover:border-muji-red transition">
+            2027 (高3)
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative w-full sm:w-64">
+          <input type="text" id="search-input" oninput="renderWorks()" placeholder="作品タイトル・タグを検索..." class="w-full bg-white border border-muji-border px-3 py-2 text-xs font-bold focus:outline-none focus:border-muji-red">
+        </div>
+      </div>
+
+      <!-- Video Grid Container -->
+      <div id="works-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Empty State View -->
+      <div id="empty-state" class="hidden text-center py-20 bg-white border border-muji-border p-8 space-y-4">
+        <div class="text-muji-red text-4xl font-en font-black">0 WORKS</div>
+        <h3 class="text-xl font-extrabold font-sans">作品がまだ登録されていません</h3>
+        <p class="text-xs font-bold text-muji-sub max-w-md mx-auto">
+          右上にある鍵アイコン（編集モード）を有効にし、「＋ 動画を追加」ボタンから最初の映像作品を追加してください。
+        </p>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 6. CONTACT & OPINION BOX SECTION           -->
+    <!-- ========================================== -->
+    <section class="bg-white border border-muji-border p-8 md:p-12 space-y-8">
+      <div class="max-w-xl space-y-2">
+        <span class="text-xs font-black tracking-widest text-muji-red font-en uppercase">CONTACT & OPINION</span>
+        <h3 class="text-2xl md:text-3xl font-extrabold tracking-tight font-sans">ご意見箱・お問い合わせ</h3>
+        <p class="text-xs md:text-sm font-bold text-muji-sub leading-relaxed">
+          動画の感想、次に作って欲しいリクエスト、制作のご依頼など、お気軽にお寄せください。
+        </p>
+      </div>
+
+      <!-- Webからの直接送信フォーム -->
+      <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-6 max-w-2xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="space-y-1">
+            <label class="block text-xs font-extrabold text-muji-text">お名前（任意）</label>
+            <input type="text" id="contact-name" placeholder="匿名でも送信いただけます" class="w-full bg-muji-bg border border-muji-border p-3 text-xs font-bold focus:outline-none focus:border-muji-red">
+          </div>
+          <div class="space-y-1">
+            <label class="block text-xs font-extrabold text-muji-text">メールアドレス（返信希望時）</label>
+            <input type="email" id="contact-email" placeholder="example@email.com" class="w-full bg-muji-bg border border-muji-border p-3 text-xs font-bold focus:outline-none focus:border-muji-red">
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="block text-xs font-extrabold text-muji-text">メッセージの種類</label>
+          <select id="contact-type" class="w-full bg-muji-bg border border-muji-border p-3 text-xs font-bold focus:outline-none focus:border-muji-red">
+            <option value="動画の感想">動画の感想</option>
+            <option value="リクエスト・作ってほしい動画">リクエスト・作ってほしい動画</option>
+            <option value="仕事・制作のご依頼">仕事・制作のご依頼</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+
+        <div class="space-y-1">
+          <label class="block text-xs font-extrabold text-muji-text">ご意見・メッセージ <span class="text-muji-red">*</span></label>
+          <textarea id="contact-message" required rows="4" placeholder="感想やアドバイスなど、自由にご入力ください。" class="w-full bg-muji-bg border border-muji-border p-3 text-xs font-bold focus:outline-none focus:border-muji-red"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <span class="text-[11px] font-bold text-muji-sub">送信先: Ushiokun477652@gmail.com 宛てに直接届きます</span>
+          <button type="submit" id="submit-btn" class="px-8 py-3 bg-muji-red text-white text-xs font-extrabold tracking-wider uppercase hover:bg-muji-redhover transition">
+            送信する
+          </button>
+        </div>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-muji-border py-10 bg-white text-center text-xs font-bold text-muji-sub space-y-2">
+    <p class="font-en">© USHIO FUJIMOTO - 100 FILMS ARCHIVE</p>
+    <p>All Rights Reserved.</p>
+  </footer>
+
+
+  <!-- ========================================== -->
+  <!-- MODALS & OVERLAYS                          -->
+  <!-- ========================================== -->
+
+  <!-- A. SHORTS FEED FULLSCREEN MODAL -->
+  <div id="shorts-modal" class="fixed inset-0 z-50 bg-black text-white hidden flex flex-col justify-between">
+    <!-- Top Controls -->
+    <div class="p-4 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent">
+      <div class="flex items-center space-x-2">
+        <span class="w-2 h-2 bg-muji-red rounded-full animate-ping"></span>
+        <span class="text-xs font-black tracking-widest font-en">SHORTS FEED</span>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button onclick="toggleShortsShuffle()" id="shuffle-btn" class="text-xs px-3 py-1.5 border border-white/30 font-bold hover:bg-white/20 transition">
+          🔀 シャッフル: OFF
+        </button>
+        <button onclick="closeShortsModal()" class="p-1 hover:text-muji-red transition">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Vertical Feed Container -->
+    <div id="shorts-feed" class="shorts-container h-full w-full overflow-y-scroll overflow-x-hidden space-y-0">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <!-- B. ADD / EDIT VIDEO MODAL -->
+  <div id="work-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-muji-border w-full max-w-lg p-6 space-y-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-muji-border pb-3">
+        <h3 id="modal-title" class="text-lg font-extrabold font-sans">動画作品を追加</h3>
+        <button onclick="closeWorkModal()" class="text-muji-sub hover:text-muji-text font-bold text-xl">&times;</button>
+      </div>
+
+      <form id="work-form" onsubmit="saveWork(event)" class="space-y-4 text-xs font-bold">
+        <input type="hidden" id="work-id">
+
+        <div>
+          <label class="block mb-1">作品タイトル <span class="text-muji-red">*</span></label>
+          <input type="text" id="work-title" required class="w-full border border-muji-border p-2.5 focus:border-muji-red focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block mb-1">制作年（学年） <span class="text-muji-red">*</span></label>
+            <select id="work-year" required class="w-full border border-muji-border p-2.5 focus:border-muji-red focus:outline-none">
+              <option value="2025">2025年 (高1)</option>
+              <option value="2026">2026年 (高2)</option>
+              <option value="2027">2027年 (高3)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block mb-1">動画タイプ <span class="text-muji-red">*</span></label>
+            <select id="work-type" onchange="toggleSourceInput()" class="w-full border border-muji-border p-2.5 focus:border-muji-red focus:outline-none">
+              <option value="youtube">YouTube URL</option>
+              <option value="local">ローカル動画ファイル</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="source-youtube-group">
+          <label class="block mb-1">YouTube URL <span class="text-muji-red">*</span></label>
+          <input type="url" id="work-youtube-url" placeholder="https://www.youtube.com/watch?v=..." class="w-full border border-muji-border p-2.5 focus:border-muji-red focus:outline-none">
+        </div>
+
+        <div id="source-local-group" class="hidden">
+          <label class="block mb-1">動画ファイルをアップロード <span class="text-muji-red">*</span></label>
+          <input type="file" id="work-local-file" accept="video/*" class="w-full border border-muji-border p-2">
+        </div>
+
+        <div>
+          <label class="block mb-1">概要・解説文</label>
+          <textarea id="work-desc" rows="3" class="w-full border border-muji-border p-2.5 focus:border-muji-red focus:outline-none" placeholder="作品のコンセプトや工夫した点など"></textarea>
+        </div>
+
+        <div>
+          <label class="block mb-1">タグ（カンマ区切り）</label>
+          <input type="text" id="work-tags" placeholder="実写, PV, DaVinci Resolve" class="w-full border border-muji-border p-2.5 focus:border-muji-red focus:outline-none">
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4 border-t border-muji-border">
+          <button type="button" onclick="closeWorkModal()" class="px-4 py-2 border border-muji-border text-muji-sub hover:text-muji-text">キャンセル</button>
+          <button type="submit" class="px-6 py-2 bg-muji-red text-white font-extrabold hover:bg-muji-redhover">保存する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- C. SITE SETTINGS MODAL -->
+  <div id="settings-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-muji-border w-full max-w-lg p-6 space-y-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-muji-border pb-3">
+        <h3 class="text-lg font-extrabold font-sans">サイト設定・プロフィール編集</h3>
+        <button onclick="closeSettingsModal()" class="text-muji-sub hover:text-muji-text font-bold text-xl">&times;</button>
+      </div>
+
+      <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-4 text-xs font-bold">
+        <div>
+          <label class="block mb-1">製作者お名前</label>
+          <input type="text" id="setting-profile-name" class="w-full border border-muji-border p-2.5">
+        </div>
+
+        <div>
+          <label class="block mb-1">サブ肩書き・役割</label>
+          <input type="text" id="setting-profile-role" class="w-full border border-muji-border p-2.5">
+        </div>
+
+        <div>
+          <label class="block mb-1">メイン キャッチコピー</label>
+          <input type="text" id="setting-hero-tagline" class="w-full border border-muji-border p-2.5">
+        </div>
+
+        <div>
+          <label class="block mb-1">サブ コンセプト文</label>
+          <input type="text" id="setting-hero-concept" class="w-full border border-muji-border p-2.5">
+        </div>
+
+        <div>
+          <label class="block mb-1">プロフィール詳細文章</label>
+          <textarea id="setting-profile-text" rows="4" class="w-full border border-muji-border p-2.5"></textarea>
+        </div>
+
+        <div>
+          <label class="block mb-1">管理者パスワード変更</label>
+          <input type="text" id="setting-passcode" class="w-full border border-muji-border p-2.5" placeholder="新しいパスワード">
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4 border-t border-muji-border">
+          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 border border-muji-border text-muji-sub">キャンセル</button>
+          <button type="submit" class="px-6 py-2 bg-muji-red text-white font-extrabold">設定を保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC                           -->
+  <!-- ========================================== -->
+  <script>
+    // State management
+    let works = JSON.parse(localStorage.getItem('ushio_works') || '[]');
+    let currentFilter = 'all';
+    let isAdmin = false;
+    let isShuffle = false;
+    let passcode = localStorage.getItem('ushio_passcode') || '1234';
+
+    let settings = JSON.parse(localStorage.getItem('ushio_settings') || JSON.stringify({
+      heroTagline: '高校生3年間で制作する\n100本の映像作品アーカイブ。',
+      heroConcept: '「日常の一瞬を、表現へ。」視点と構成力で切り取る映像制作プロジェクト。',
+      profileName: '藤本 潮 (Ushio Fujimoto)',
+      profileRole: '映像制作 / 監督 / SYIO',
+      profileText: '高校での3年間を通じて合計100本の動画作品を制作・記録するプロジェクトを行っています。\n実写ショートフィルム、プロモーションビデオ、モーショングラフィックスまで幅広く手掛け、洗練された構図と編集テンポ、質感にこだわった表現を追及しています。'
+    }));
+
+    // INITIALIZATION
+    document.addEventListener('DOMContentLoaded', () => {
+      renderSettings();
+      renderWorks();
+      setupWelcomeDismiss();
+      setupScrollProgress();
+    });
+
+    // 1. WELCOME OVERLAY CONTROLS
+    function setupWelcomeDismiss() {
+      const overlay = document.getElementById('welcome-overlay');
+      const dismiss = () => {
+        overlay.classList.add('dismissed');
+      };
+
+      overlay.addEventListener('click', dismiss);
+      window.addEventListener('wheel', (e) => {
+        if (e.deltaY > 10 && !overlay.classList.contains('dismissed')) {
+          dismiss();
+        }
+      }, { passive: true });
+    }
+
+    function reopenWelcome() {
+      const overlay = document.getElementById('welcome-overlay');
+      overlay.classList.remove('dismissed');
+    }
+
+    // 2. SCROLL PROGRESS BAR
+    function setupScrollProgress() {
+      window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById('scroll-progress').style.width = scrolled + '%';
+      });
+    }
+
+    // 3. ADMIN ACCESS CONTROL
+    function toggleAdminPrompt() {
+      if (isAdmin) {
+        isAdmin = false;
+        document.getElementById('admin-controls').classList.add('hidden');
+        document.getElementById('admin-profile-btn').classList.add('hidden');
+        document.getElementById('lock-icon').classList.remove('text-muji-red');
+        renderWorks();
+        alert('編集モードを解除しました。');
+      } else {
+        const input = prompt('管理者パスワードを入力してください:');
+        if (input === passcode) {
+          isAdmin = true;
+          document.getElementById('admin-controls').classList.remove('hidden');
+          document.getElementById('admin-profile-btn').classList.remove('hidden');
+          document.getElementById('lock-icon').classList.add('text-muji-red');
+          renderWorks();
+          alert('編集モードが有効になりました。');
+        } else if (input !== null) {
+          alert('パスワードが正しくありません。');
+        }
+      }
+    }
+
+    // 4. RENDER SETTINGS & PROFILE
+    function renderSettings() {
+      document.getElementById('hero-tagline').innerText = settings.heroTagline;
+      document.getElementById('hero-concept').innerText = settings.heroConcept;
+      document.getElementById('profile-name').innerText = settings.profileName;
+      document.getElementById('profile-role').innerText = settings.profileRole;
+      document.getElementById('profile-text').innerText = settings.profileText;
+
+      // Populate form
+      document.getElementById('setting-hero-tagline').value = settings.heroTagline;
+      document.getElementById('setting-hero-concept').value = settings.heroConcept;
+      document.getElementById('setting-profile-name').value = settings.profileName;
+      document.getElementById('setting-profile-role').value = settings.profileRole;
+      document.getElementById('setting-profile-text').value = settings.profileText;
+      document.getElementById('setting-passcode').value = passcode;
+    }
+
+    function saveSettings(e) {
+      e.preventDefault();
+      settings.heroTagline = document.getElementById('setting-hero-tagline').value;
+      settings.heroConcept = document.getElementById('setting-hero-concept').value;
+      settings.profileName = document.getElementById('setting-profile-name').value;
+      settings.profileRole = document.getElementById('setting-profile-role').value;
+      settings.profileText = document.getElementById('setting-profile-text').value;
+
+      const newPass = document.getElementById('setting-passcode').value.trim();
+      if (newPass) {
+        passcode = newPass;
+        localStorage.setItem('ushio_passcode', passcode);
+      }
+
+      localStorage.setItem('ushio_settings', JSON.stringify(settings));
+      renderSettings();
+      closeSettingsModal();
+      alert('設定を保存しました。');
+    }
+
+    // 5. RENDER VIDEO WORKS & COUNTER
+    function setYearFilter(year) {
+      currentFilter = year;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-year') === year) {
+          btn.className = 'filter-btn px-5 py-2.5 font-extrabold text-xs uppercase tracking-wider bg-muji-red text-white border border-muji-red transition';
+        } else {
+          btn.className = 'filter-btn px-5 py-2.5 font-extrabold text-xs uppercase tracking-wider bg-white text-muji-text border border-muji-border hover:border-muji-red transition';
+        }
+      });
+      renderWorks();
+    }
+
+    function renderWorks() {
+      const grid = document.getElementById('works-grid');
+      const emptyState = document.getElementById('empty-state');
+      const searchQuery = document.getElementById('search-input').value.toLowerCase();
+
+      // Update counter widget
+      const count = works.length;
+      document.getElementById('counter-text').innerText = `${count} / 100`;
+      document.getElementById('counter-progress-bar').style.width = `${Math.min((count / 100) * 100, 100)}%`;
+      document.getElementById('counter-remaining').innerText = Math.max(100 - count, 0);
+
+      // Filter works
+      let filtered = works.filter(w => {
+        const matchesYear = currentFilter === 'all' || w.year === currentFilter;
+        const matchesSearch = w.title.toLowerCase().includes(searchQuery) || (w.tags && w.tags.toLowerCase().includes(searchQuery));
+        return matchesYear && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.innerHTML = filtered.map(w => {
+        const tagsHtml = (w.tags || '').split(',').map(t => t.trim()).filter(Boolean).map(t => 
+          `<span class="px-2 py-0.5 bg-muji-bg text-[10px] font-bold text-muji-sub border border-muji-border">#${t}</span>`
+        ).join(' ');
+
+        return `
+          <div class="bg-white border border-muji-border overflow-hidden flex flex-col justify-between group">
+            <div class="relative bg-black aspect-video overflow-hidden">
+              ${w.type === 'youtube' ? `
+                <iframe src="${getEmbedUrl(w.url)}" class="w-full h-full border-0" allowfullscreen></iframe>
+              ` : `
+                <video src="${w.url}" controls class="w-full h-full object-cover"></video>
+              `}
+              <span class="absolute top-2 left-2 px-2.5 py-1 bg-muji-red text-white font-en font-black text-[10px] uppercase">
+                ${w.year}
+              </span>
+            </div>
+
+            <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
+              <div class="space-y-2">
+                <h4 class="font-extrabold text-base leading-snug font-sans group-hover:text-muji-red transition">
+                  ${escapeHtml(w.title)}
+                </h4>
+                <p class="text-xs text-muji-sub font-bold leading-relaxed line-clamp-3">
+                  ${escapeHtml(w.desc || '解説なし')}
+                </p>
+              </div>
+
+              <div class="space-y-3 pt-2">
+                <div class="flex flex-wrap gap-1">${tagsHtml}</div>
+                ${isAdmin ? `
+                  <div class="flex justify-end space-x-2 pt-2 border-t border-muji-border">
+                    <button onclick="editWork('${w.id}')" class="text-xs font-bold text-muji-sub hover:text-muji-text">編集</button>
+                    <button onclick="deleteWork('${w.id}')" class="text-xs font-bold text-muji-red hover:underline">削除</button>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getEmbedUrl(url) {
+      if (!url) return '';
+      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      return match ? `https://www.youtube.com/embed/${match[1]}` : url;
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // 6. ADD / EDIT VIDEO MODAL LOGIC
+    function openAddModal() {
+      document.getElementById('modal-title').innerText = '動画作品を追加';
+      document.getElementById('work-id').value = '';
+      document.getElementById('work-form').reset();
+      toggleSourceInput();
+      document.getElementById('work-modal').classList.remove('hidden');
+    }
+
+    function closeWorkModal() {
+      document.getElementById('work-modal').classList.add('hidden');
+    }
+
+    function toggleSourceInput() {
+      const type = document.getElementById('work-type').value;
+      if (type === 'youtube') {
+        document.getElementById('source-youtube-group').classList.remove('hidden');
+        document.getElementById('source-local-group').classList.add('hidden');
+      } else {
+        document.getElementById('source-youtube-group').classList.add('hidden');
+        document.getElementById('source-local-group').classList.remove('hidden');
+      }
+    }
+
+    function saveWork(e) {
+      e.preventDefault();
+      const id = document.getElementById('work-id').value || Date.now().toString();
+      const title = document.getElementById('work-title').value;
+      const year = document.getElementById('work-year').value;
+      const type = document.getElementById('work-type').value;
+      const desc = document.getElementById('work-desc').value;
+      const tags = document.getElementById('work-tags').value;
+
+      let url = '';
+      if (type === 'youtube') {
+        url = document.getElementById('work-youtube-url').value;
+      } else {
+        const fileInput = document.getElementById('work-local-file');
+        if (fileInput.files && fileInput.files[0]) {
+          url = URL.createObjectURL(fileInput.files[0]);
+        } else {
+          const existing = works.find(w => w.id === id);
+          url = existing ? existing.url : '';
+        }
+      }
+
+      const existingIndex = works.findIndex(w => w.id === id);
+      const newWork = { id, title, year, type, url, desc, tags };
+
+      if (existingIndex >= 0) {
+        works[existingIndex] = newWork;
+      } else {
+        works.unshift(newWork);
+      }
+
+      localStorage.setItem('ushio_works', JSON.stringify(works));
+      renderWorks();
+      closeWorkModal();
+    }
+
+    function editWork(id) {
+      const w = works.find(item => item.id === id);
+      if (!w) return;
+
+      document.getElementById('modal-title').innerText = '動画作品を編集';
+      document.getElementById('work-id').value = w.id;
+      document.getElementById('work-title').value = w.title;
+      document.getElementById('work-year').value = w.year;
+      document.getElementById('work-type').value = w.type;
+      document.getElementById('work-desc').value = w.desc || '';
+      document.getElementById('work-tags').value = w.tags || '';
+      if (w.type === 'youtube') {
+        document.getElementById('work-youtube-url').value = w.url;
+      }
+
+      toggleSourceInput();
+      document.getElementById('work-modal').classList.remove('hidden');
+    }
+
+    function deleteWork(id) {
+      if (confirm('この動画作品を削除しますか？')) {
+        works = works.filter(w => w.id !== id);
+        localStorage.setItem('ushio_works', JSON.stringify(works));
+        renderWorks();
+      }
+    }
+
+    // 7. SHORTS FULLSCREEN FEED MODE
+    function openShortsModal() {
+      if (works.length === 0) {
+        alert('Shorts再生できる動画がまだありません。まずは動画を追加してください。');
+        return;
+      }
+      renderShortsFeed();
+      document.getElementById('shorts-modal').classList.remove('hidden');
+    }
+
+    function closeShortsModal() {
+      document.getElementById('shorts-modal').classList.add('hidden');
+      document.getElementById('shorts-feed').innerHTML = '';
+    }
+
+    function toggleShortsShuffle() {
+      isShuffle = !isShuffle;
+      const btn = document.getElementById('shuffle-btn');
+      btn.innerText = isShuffle ? '🔀 シャッフル: ON' : '🔀 シャッフル: OFF';
+      btn.classList.toggle('bg-muji-red', isShuffle);
+      renderShortsFeed();
+    }
+
+    function renderShortsFeed() {
+      const feed = document.getElementById('shorts-feed');
+      let displayList = [...works];
+      if (isShuffle) {
+        displayList.sort(() => Math.random() - 0.5);
+      }
+
+      feed.innerHTML = displayList.map(w => `
+        <div class="shorts-item h-full w-full relative flex items-center justify-center bg-black">
+          <div class="w-full max-w-sm aspect-[9/16] relative bg-black flex items-center justify-center">
+            ${w.type === 'youtube' ? `
+              <iframe src="${getEmbedUrl(w.url)}?autoplay=0" class="w-full h-full border-0" allowfullscreen></iframe>
+            ` : `
+              <video src="${w.url}" controls class="w-full h-full object-cover"></video>
+            `}
+            
+            <div class="absolute bottom-4 left-4 right-4 text-white space-y-2 pointer-events-none bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4">
+              <span class="px-2 py-0.5 bg-muji-red text-[10px] font-black font-en">${w.year}</span>
+              <h3 class="font-extrabold text-base leading-tight font-sans">${escapeHtml(w.title)}</h3>
+              <p class="text-xs text-white/80 line-clamp-2">${escapeHtml(w.desc || '')}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 8. SETTINGS MODAL CONTROLS
+    function openSettingsModal() {
+      renderSettings();
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    // 9. CONTACT FORM DISPATCH (Direct Web Mail Send)
+    async function handleContactSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.innerText = '送信中...';
+      submitBtn.disabled = true;
+
+      const name = document.getElementById('contact-name').value || '匿名';
+      const email = document.getElementById('contact-email').value || '未入力';
+      const type = document.getElementById('contact-type').value;
+      const message = document.getElementById('contact-message').value;
+
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            access_key: '5c26b64b-ee15-46f9-866b-4e89791eb002',
+            subject: `[ポートフォリオお問い合わせ] ${type} - ${name}様より`,
+            from_name: name,
+            replyto: email,
+            message: `【お名前】: ${name}\n【メールアドレス】: ${email}\n【お問い合わせ種別】: ${type}\n\n【メッセージ】:\n${message}`
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('メッセージを直接送信しました！ご意見・お問い合わせありがとうございます！');
+          document.getElementById('contact-form').reset();
+        } else {
+          alert('送信に失敗しました。時間をおいて再度お試しください。');
+        }
+      } catch (error) {
+        alert('ネットワークエラーが発生しました。接続を確認してください。');
+      } finally {
+        submitBtn.innerText = '送信する';
+        submitBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
